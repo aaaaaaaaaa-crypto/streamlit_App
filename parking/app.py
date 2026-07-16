@@ -16,7 +16,32 @@ if uploaded_file:
     # 2. 데이터 로드 및 전처리
     @st.cache_data
     def load_data(file):
-        df = pd.read_csv(file)
+        # 1. 파일 인코딩 오류 방지를 위한 예외 처리 추가
+        try:
+            df = pd.read_csv(file, encoding='utf-8')
+        except UnicodeDecodeError:
+            file.seek(0) # 파일을 다시 처음부터 읽기 위해 포인터 초기화
+            df = pd.read_csv(file, encoding='cp949') # 한국어 윈도우/엑셀 기본 인코딩으로 재시도
+            
+        # '주소' 컬럼의 첫 번째 단어를 '자치구'로 추출 (예: '강북구 미아동...' -> '강북구')
+        df['자치구'] = df['주소'].apply(lambda x: str(x).split()[0] if pd.notnull(x) else "알수없음")
+        
+        # 위도, 경도 숫자형으로 변환 (오류 발생 시 NaN 처리 후 제거)
+        df['위도'] = pd.to_numeric(df['위도'], errors='coerce')
+        df['경도'] = pd.to_numeric(df['경도'], errors='coerce')
+        df = df.dropna(subset=['위도', '경도'])
+        
+        # 정확한 요금 비교를 위한 '1분당 요금' 계산 로직 추가
+        def calc_per_min(row):
+            try:
+                fee = float(row['기본 주차 요금'])
+                time = float(row['기본 주차 시간(분 단위)'])
+                return fee / time if time > 0 else float('inf')
+            except:
+                return float('inf')
+                
+        df['분당요금'] = df.apply(calc_per_min, axis=1)
+        return df
         # '주소' 컬럼의 첫 번째 단어를 '자치구'로 추출 (예: '강북구 미아동...' -> '강북구')
         df['자치구'] = df['주소'].apply(lambda x: str(x).split()[0] if pd.notnull(x) else "알수없음")
         
