@@ -75,7 +75,7 @@ def analyze_sentiment(text):
 st.title("📺 유튜브 댓글 분석기")
 st.markdown("유튜브 영상 링크를 입력하면 댓글을 수집하여 시간대별 추이, 반응도, 워드클라우드를 분석합니다.")
 
-with St.container():
+with st.container():
     url = st.text_input("유튜브 영상 링크를 입력하세요:", placeholder="https://www.youtube.com/watch?v=...")
     max_comments = st.slider("수집할 최대 댓글 개수", min_value=50, max_value=1000, value=200, step=50)
     analyze_btn = st.button("분석 시작", type="primary")
