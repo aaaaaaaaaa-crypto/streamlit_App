@@ -7,25 +7,12 @@ from wordcloud import WordCloud
 from collections import Counter
 import matplotlib.font_manager as fm
 import os
-import urllib.request  # 👈 인터넷에서 폰트를 다운로드하기 위해 추가
 
 # --- 설정 부분 ---
 st.set_page_config(page_title="유튜브 댓글 분석기", page_icon="📊", layout="wide")
 
 FONT_PATH = "NanumGothic.ttf" 
 
-# 🔥 [핵심 수정] 폰트 파일이 없으면 구글 폰트 공식 저장소에서 자동으로 다운로드합니다.
-if not os.path.exists(FONT_PATH):
-    with st.spinner("🎯 한글 폰트(나눔고딕)를 서버에 설치하는 중입니다..."):
-        try:
-            font_url = "https://github.com/google/fonts/raw/main/ofl/nanumgothic/NanumGothic-Regular.ttf"
-            urllib.request.urlretrieve(font_url, FONT_PATH)
-            # 맷플롯립 캐시 재설정
-            fm.fontManager.addfont(FONT_PATH)
-        except Exception as e:
-            st.error(f"폰트 다운로드 중 오류가 발생했습니다: {e}")
-
-# 유튜브 API 키 설정 (Streamlit Secrets에서 가져옴)
 try:
     API_KEY = st.secrets["YOUTUBE_API_KEY"]
 except KeyError:
@@ -88,7 +75,7 @@ def analyze_sentiment(text):
 st.title("📺 유튜브 댓글 분석기")
 st.markdown("유튜브 영상 링크를 입력하면 댓글을 수집하여 시간대별 추이, 반응도, 워드클라우드를 분석합니다.")
 
-with st.container():
+with St.container():
     url = st.text_input("유튜브 영상 링크를 입력하세요:", placeholder="https://www.youtube.com/watch?v=...")
     max_comments = st.slider("수집할 최대 댓글 개수", min_value=50, max_value=1000, value=200, step=50)
     analyze_btn = st.button("분석 시작", type="primary")
